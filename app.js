@@ -17,21 +17,28 @@ app.post('/', function (req, res) {
         console.log("solved!"); // solvd
         const solvedBy = body.pull_request.user.login;
         const commitMsg = body.pull_request.body;
+        const issueNumber = getIssueNumber(commitMsg);
+    }
+});
 
-        let closePattern = /(c|C)loses\s+#[1-9][0-9]* /i;
-        let found = commitMsg.match(closePattern);
-        let issueNumber;
-        if (!found) {
-            console.log("This pull request does not close any issue.");
-        } else {
-            let issueNumPattern = /#[1-9][0-9]*/;
-            found = found[0].match(issueNumPattern);
-            issueNumber = found[0][1];
-            console.log(issueNumber);
-        }
+function getIssueNumber(commitMsg) {
+    const closePattern = /(c|C)loses\s+#[1-9][0-9]* /i;
+    const issueNumPattern = /#[1-9][0-9]*/;
+    let issueNumber;
+
+    let found = commitMsg.match(closePattern);
+
+    if (!found) {
+        console.log("This pull request does not close any issue.");
+        return null;
     }
 
-});
+    found = found[0].match(issueNumPattern);
+    issueNumber = found[0][1];
+    console.log(issueNumber);
+
+    return issueNumber;
+}
 
 app.listen(3000, function () {
     console.log('listening on port 3000!');
